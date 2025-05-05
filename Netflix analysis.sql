@@ -146,10 +146,23 @@ from cte)
 select * from cte2 where rn=1
 
 --4. What is average duration of movies in each genre
-select *,cast(replace(replace(duration,'min',''),'Season','') as int) as duration
+select l.listed_in,avg(cast(replace(replace(duration,'min',''),'Season','') as int)) as duration
 from netflix n
 inner join listed_in l on n.show_id=l.show_id
 where type='Movie'
+group by listed_in
 
+--5. Find the list of directors who have created horror and comdey movies both
+-- display director names along with number of comedy and horror movies directed by them 
+
+select d.director,
+count(distinct(case when l.listed_in='Comedies' then n.show_id end)) as no_comdey,
+count(distinct(case when l.listed_in='Horror Movies' then n.show_id end)) as no_horror
+from netflix n
+inner join listed_in l on n.show_id=l.show_id
+inner join director d on n.show_id=d.show_id
+where type='Movie' and l.listed_in in ('Comedies','Horror Movies')
+group by d.director
+having count(distinct l.listed_in)=2
 
 
